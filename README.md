@@ -13,18 +13,12 @@ I used the following docs for reference:
 * https://www.redhat.com/en/blog/upgrading-rhel-7-rhel-8-leapp-and-boom
 * https://access.redhat.com/articles/4263361
 
-Requirements
-------------
-
-This role assumes you have implemented a standard operating environment that provides:
-
-* Red Hat Enterprise Linux 7
-* System Entitled with RHSM or Satellite
-* Repositories configured and enabled for latest updates, specifically for `rhel-7-server-rpms` and `rhel-7-server-extras-rpms`
-
 Role Variables
 --------------
 
+Variables that modify the behavior of this role are declared in `defaults/main.yml`
+
+```
 # Provide a list of repository IDs that exist in /etc/yum.repos.d
 # Default []
 leapp_custom_repositories: []
@@ -58,25 +52,48 @@ leapp_skip_upgrade: yes
 
 # How long to wait (in seconds) for reboot after upgrade? Default 1200
 leapp_upgrade_reboot_timeout: 1200
+```
 
 Dependencies
 ------------
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+There are no dependencies to use this role, however, this role assumes you have implemented a standard operating environment that provides:
+
+* Red Hat Enterprise Linux 7
+* System Entitled with RHSM or Satellite
+* Repositories configured and enabled for latest updates, specifically for `rhel-7-server-rpms` and `rhel-7-server-extras-rpms`
 
 Example Playbook
 ----------------
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
+The following is a simple playbook that will perform everything up to performing the actual upgrade:
 
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
+```
+---
+
+- name: Perform an in-place upgrade of a EL System
+  hosts: all
+  become: yes
+
+  vars:
+    leapp_skip_rhsm: no
+    leapp_skip_validate: no
+    leapp_skip_prepare: no
+    leapp_skip_prepare_update: yes
+    leapp_skip_prepare_cockpit_install: yes
+    leapp_skip_prepare_package_install: yes
+    leapp_skip_prepare_rhsm_repositories: yes
+    leapp_skip_preupgrade: no
+    leapp_skip_upgrade: yes
+    leapp_skip_preupgrade_cleanup: yes
+  roles:
+    - mrjoshuap.leapp
+```
 
 License
 -------
 
-BSD
+GPL-2.0-or-later
 
 Author Information
 ------------------
