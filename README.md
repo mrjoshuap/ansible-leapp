@@ -1,7 +1,18 @@
-Leapp
-=====
+ansible-leapp
+=============
 
-This role attempts to perform an automated in-place upgrade of EL based systems, primarily Red Hat Enterprise Linux.
+This Ansible role attempts to perform an automated in-place upgrade of EL based systems, primarily Red Hat Enterprise Linux.
+
+It performs the following high level tasks:
+
+* Validating prerequisites and requirements
+* Preparing a system for the upgrade
+* Generate leapp preupgrade report
+* Remediate common upgrade issues (disabled by default)
+* Performing the upgrade (disabled by default)
+* Verifying the post-upgrade state (disabled by default)
+
+By default, this role will not perform the actual upgrade.  It is intended to prepare the system and generate a preupgrade report that should be reviewed.  If you're feeling lucky, you can also have it attempt to perform the upgrade.
 
 References
 ----------
@@ -22,6 +33,9 @@ Variables that modify the behavior of this role are declared in `defaults/main.y
 # Provide a list of repository IDs that exist in /etc/yum.repos.d
 # Default []
 leapp_custom_repositories: []
+
+# specify a grub device, generally not required for most installations
+leapp_grub_device: '/boot'
 
 # Skip Red Hat Subscription Manager? Default no
 leapp_skip_rhsm: no
@@ -47,6 +61,9 @@ leapp_skip_preupgrade: yes
 # Skip removing previous reports?  Defaults no
 leapp_skip_preupgrade_cleanup: no
 
+# Skip remediate of common issues?  Defaults yes
+leapp_skip_remediate: yes
+
 # Skip the actual leapp upgrade? Default yes
 leapp_skip_upgrade: yes
 
@@ -62,6 +79,8 @@ There are no dependencies to use this role, however, this role assumes you have 
 * Red Hat Enterprise Linux 7
 * System Entitled with RHSM or Satellite
 * Repositories configured and enabled for latest updates, specifically for `rhel-7-server-rpms` and `rhel-7-server-extras-rpms`
+
+Additionally, you must also download the additional required data files (RPM package changes and RPM repository mapping) attached to the [Knowledgebase Article](https://access.redhat.com/articles/3664871) and place it in the 'files' directory below the playbook including this role.
 
 Example Playbook
 ----------------
