@@ -1,7 +1,7 @@
 ansible-leapp
 =============
 
-This Ansible role attempts to perform an automated in-place upgrade of EL based
+This Ansible role attempts to perform an automated in-place upgrade of EL based\
 systems, primarily Red Hat Enterprise Linux.
 
 It performs the following high level tasks:
@@ -13,8 +13,8 @@ It performs the following high level tasks:
 * Performing the upgrade (disabled by default)
 * Verifying the post-upgrade state (disabled by default)
 
-By default, this role will not perform the actual upgrade.  It is intended to
-prepare the system and generate a preupgrade report that should be reviewed.
+By default, this role will not perform the actual upgrade.  It is intended to\
+prepare the system and generate a preupgrade report that should be reviewed.\
 If you're feeling lucky, you can also have it attempt to perform the upgrade.
 
 References
@@ -77,7 +77,7 @@ leapp_upgrade_reboot_timeout: 1200
 Dependencies
 ------------
 
-There are no dependencies to use this role, however, this role assumes you have
+There are no dependencies to use this role, however, this role assumes you have\
 implemented a standard operating environment that provides:
 
 * Red Hat Enterprise Linux 7
@@ -85,15 +85,15 @@ implemented a standard operating environment that provides:
 * Repositories configured and enabled for latest updates, specifically for\
   `rhel-7-server-rpms` and `rhel-7-server-extras-rpms`
 
-Additionally, you must also download the additional required data files (RPM
-package changes and RPM repository mapping) attached to the
-[Knowledgebase Article](https://access.redhat.com/articles/3664871) and place
+Additionally, you must also download the additional required data files (RPM\
+package changes and RPM repository mapping) attached to the\
+[Knowledgebase Article](https://access.redhat.com/articles/3664871) and place\
 it in the 'files' directory below the playbook including this role.
 
 Example Playbook
 ----------------
 
-The following is a simple playbook that will perform everything up to performing
+The following is a simple playbook that will perform everything up to performing\
 the actual upgrade:
 
 ```
@@ -150,5 +150,5 @@ GPL-2.0-or-later
 Author Information
 ------------------
 
-Joshua Preston is a solution architect with Red Hat, specializing in Platform
+Joshua Preston is a solution architect with Red Hat, specializing in Platform\
 and Management technologies.
