@@ -1,0 +1,24 @@
+---
+
+galaxy_info:
+  author: Joshua Preston
+  description: An Ansible role that attempts an inplace upgrade of EL7 to EL8 using LEAPP
+  company: Red Hat
+
+  license: GPL-2.0-or-later
+
+  min_ansible_version: 2.9
+
+  platforms:
+    - name: EL
+      versions:
+        - 7
+
+  galaxy_tags:
+    - leapp
+    - system
+    - upgrade
+
+# List your role dependencies here, one per line. Be sure to remove the '[]' below,
+# if you add dependencies to this list.
+dependencies: []

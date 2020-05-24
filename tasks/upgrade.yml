@@ -1,0 +1,31 @@
+- name: Perform leapp upgrade
+  command: >
+    leapp upgrade
+    {% for repo in leapp_custom_repositories %}--enablerepo {{ repo }}{% endfor %}
+    {{ "--no-rhsm" if leapp_skip_rhsm | default() | bool }}
+  args:
+    creates: /var/log/leapp/leapp-report.txt
+  register: leapp_preupgrade
+
+- name: Debug leapp preupgrade output
+  debug:
+    var: leapp_preupgrade
+    verbosity: 2
+
+- name: Reboot system to complete the upgrade
+  reboot:
+    reboot_timeout: '{{ leapp_upgrade_reboot_timeout | int }}'
+
+- name: Correct python version selected
+  alternatives:
+    name: python
+    path: /usr/bin/python3
+  when:
+    - leapp_preupgrade_report.entries | selectattr("", "match", "Difference in Python versions and support")
+
+- name: Unset Subscription Manager Release
+  rhsm_release:
+    release: null
+  when:
+    - 'ansible_distribution == "RedHat"'
+    - 'not leapp_skip_rhsm | bool'

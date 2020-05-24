@@ -1,0 +1,25 @@
+---
+# vars file for mrjoshuap.leapp
+
+# We're going to find the first found
+leapp_data_files:
+  - files/leapp-data20.tar.gz
+  - files/leapp-data19.tar.gz
+  - files/leapp-data18.tar.gz
+  - files/leapp-data17.tar.gz
+  - files/leapp-data16.tar.gz
+  - files/leapp-data15.tar.gz
+  - files/leapp-data14.tar.gz
+  - files/leapp-data13.tar.gz
+  - files/leapp-data12.tar.gz
+  - files/leapp-data11.tar.gz
+  - files/leapp-data10.tar.gz
+  - files/leapp-data9.tar.gz
+  - files/leapp-data8.tar.gz
+  - files/leapp-data7.tar.gz
+  - files/leapp-data6.tar.gz
+  - files/leapp-data5.tar.gz
+  - files/leapp-data4.tar.gz
+  - files/leapp-data3.tar.gz
+  - files/leapp-data2.tar.gz
+  - files/leapp-data1.tar.gz

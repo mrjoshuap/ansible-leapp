@@ -1,0 +1,28 @@
+- name: Load distribution and architecture variables
+  include_vars: '{{ item }}'
+  vars:
+    params:
+      files:
+        - 'vars/{{ ansible_distribution }}-{{ ansible_architecture }}.yml'
+  loop: "{{ q('first_found', params, errors='ignore') }}"
+
+- name: Validate system requirements
+  assert:
+    fail_msg: 'System did not meet requirements for leapp upgrade'
+    that:
+      - 'ansible_distribution_major_version | int == 7'
+      - 'ansible_interfaces | select("match", "eth") | list | length <= 1'
+      - 'ansible_kernel is match(leapp_kernel_version)'
+      - 'ansible_memtotal_mb | int < leapp_max_memtotal_mb | int'
+      - 'ansible_memtotal_mb | int > leapp_min_memtotal_mb | int'
+      - 'ansible_processor_count | int * ansible_processor_cores | int < leapp_maximum_logical_cpus | int'
+      - 'not ansible_fips | bool'
+
+- name: Validate repository and subscription-manager options
+  assert:
+    fail_msg: '"leapp_skip_rhsm" is true, but no "leapp_custom_repositories" were defined'
+    that:
+      - >
+        not leapp_skip_rhsm | bool
+        or
+        (leapp_skip_rhsm | bool and leapp_custom_repositories | length > 0)

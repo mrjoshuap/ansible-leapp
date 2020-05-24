@@ -1,0 +1,54 @@
+- name: Include prepare tasks specific for distribution and architecture
+  include_tasks: '{{ item }}'
+  vars:
+    params:
+      files:
+        - 'prepare-{{ ansible_distribution }}-{{ ansible_architecture }}.yml'
+        - 'prepare-{{ ansible_distribution }}.yml'
+  loop: "{{ q('first_found', params, errors='ignore') }}"
+
+- name: Include prepare tasks specific for Red Hat
+  include_tasks: prepare-RedHat.yml
+
+- name: Clear yum versionlocks
+  command: yum versionlock clear
+  args:
+    warn: no
+  when: 'leapp_yum_version_locked | default() | bool'
+
+- name: Update all packages to latest # noqa 403
+  package:
+    name: '*'
+    state: latest
+  register: leapp_package_update
+  when:
+    - 'not leapp_skip_prepare_update | bool'
+
+- name: Install required LEAPP packages
+  package:
+    name: '{{ leapp_packages }}'
+    state: present
+  when: 'not leapp_skip_prepare_package_install | bool'
+
+- name: Install LEAPP module for cockpit
+  package:
+    name: '{{ leapp_packages_cockpit }}'
+    state: present
+  when:
+    - '"cockpit" in ansible_facts.packages'
+    - 'not leapp_skip_prepare_cockpit_install | bool'
+  register: leapp_package_cockpit
+
+- name: Restart cockpit for LEAPP module to take effect
+  service:
+    name: cockpit
+    state: restarted
+  when:
+    - '"cockpit" in ansible_facts.packages'
+    - 'not leapp_package_update.changed'
+    - 'not leapp_skip_prepare_cockpit_install | bool'
+    - 'leapp_package_cockpit.changed'
+
+- name: Reboot system # noqa 503
+  reboot:
+  when: 'leapp_package_update.changed'

@@ -1,0 +1,58 @@
+---
+
+yaml-files:
+  - '*.yaml'
+  - '*.yml'
+  - '.ansible-lint'
+  - '.pre-commit-config.yaml'
+  - '.yamllint.yaml'
+
+rules:
+  braces:
+    min-spaces-inside-empty: 0
+    max-spaces-inside-empty: 1
+    min-spaces-inside: 1
+    max-spaces-inside: 1
+  brackets:
+    min-spaces-inside-empty: 0
+    max-spaces-inside-empty: 1
+    min-spaces-inside: 1
+    max-spaces-inside: 1
+  colons:
+    max-spaces-before: 0
+    max-spaces-after: 1
+  commas:
+    min-spaces-after: 1
+    max-spaces-after: 1
+  comments:
+    level: warning
+    min-spaces-from-content: 1
+    require-starting-space: yes
+  comments-indentation:
+    level: warning
+  document-end: disable
+  document-start:
+    ignore: |
+      tasks/
+    level: warning
+  empty-lines: enable
+  empty-values:
+    level: warning
+  hyphens: enable
+  indentation: enable
+  key-duplicates: enable
+  key-ordering: disable
+  line-length:
+    level: warning
+    max: 160
+  new-line-at-end-of-file: enable
+  new-lines: enable
+  octal-values:
+    forbid-explicit-octal: yes
+    forbid-implicit-octal: no
+  quoted-strings: disable
+  trailing-spaces: enable
+  truthy:
+    allowed-values: [ "yes", "no" ]
+    ignore: |
+      .travis.yml

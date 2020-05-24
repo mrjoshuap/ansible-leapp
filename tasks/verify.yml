@@ -1,0 +1,3 @@
+- name: Verify post-upgrade system status
+  debug:
+    msg: Not yet implemented

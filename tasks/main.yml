@@ -1,0 +1,33 @@
+- name: Perform a LEAPP Upgrade from EL7.latest to EL8.latest
+  block:
+
+      - name: Include setup tasks
+        include_tasks: setup.yml
+
+      - name: Validating prerequisites and requirements
+        include_tasks: validate.yml
+        when: not leapp_skip_validate | bool
+
+      - name: Preparing a system for the upgrade
+        include_tasks: prepare.yml
+        when: not leapp_skip_prepare | bool
+
+      - name: Generate leapp preupgrade report
+        include_tasks: preupgrade.yml
+        when: not leapp_skip_preupgrade | bool
+
+      - name: Perform common remediation of issues
+        include_tasks: remediate.yml
+        when: not leapp_skip_remediate | bool
+
+      - name: Performing the upgrade
+        include_tasks: upgrade.yml
+        when: not leapp_skip_upgrade | bool
+
+      - name: Include setup tasks
+        include_tasks: setup.yml
+        when: not leapp_skip_upgrade | bool
+
+      - name: Verifying the post-upgrade state
+        include_tasks: verify.yml
+        when: not leapp_skip_upgrade | bool

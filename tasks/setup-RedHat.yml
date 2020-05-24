@@ -1,0 +1,41 @@
+- name: Perform RHSM setup work
+  block:
+
+    - name: Get subscription status
+      command: subscription-manager status
+      ignore_errors: yes
+      changed_when: no
+      register: subscription_manager_status
+
+    - name: Debug output of subscription status
+      debug:
+        var: subscription_manager_status
+        verbosity: 2
+
+    - name: Set subscription status
+      set_fact:
+        leapp_subscription_manager_entitled: '{{ subscription_manager_status.rc | default() | bool }}'
+
+    - name: Get release status
+      command: subscription-manager release --show
+      ignore_errors: yes
+      changed_when: no
+      register: subscription_manager_release_status
+
+    - name: Debug output of release status
+      debug:
+        var: subscription_manager_release_status
+        verbosity: 2
+
+    - name: Set release status
+      set_fact:
+        leapp_subscription_manager_release_locked: '{{ "Release not set" not in subscription_manager_release_status.stdout }}'
+
+    - name: Debug output of Red Hat variables
+      debug:
+        msg: >
+          leapp_subscription_manager_entitled={{ leapp_subscription_manager_entitled }}
+          leapp_subscription_manager_release_locked={{ leapp_subscription_manager_release_locked }}
+
+  when:
+    - 'not leapp_skip_rhsm | bool'

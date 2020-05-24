@@ -1,0 +1,18 @@
+- name: Perform RHSM prepare work
+  block:
+
+    - name: Unset Subscription Manager Release
+      rhsm_release:
+        release: null
+      when:
+        - 'leapp_subscription_manager_release_locked | default() | bool'
+
+    - name: Disable all repositories except the RHSM ones
+      rhsm_repository:
+        name: '{{ leapp_rhsm_repositories | join(",") }}'
+        purge: yes
+      when:
+        - 'not leapp_skip_prepare_rhsm_repositories | bool'
+
+  when:
+    - 'not leapp_skip_rhsm | bool'

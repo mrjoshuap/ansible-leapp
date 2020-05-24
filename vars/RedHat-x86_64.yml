@@ -1,0 +1,26 @@
+---
+# Required kernel version
+leapp_kernel_version: '3.10'
+
+# Maximum logical CPUs, per https://access.redhat.com/articles/rhel-limits
+leapp_maximum_logical_cpus: '768'
+
+# Maximum memory, per https://access.redhat.com/articles/rhel-limits
+leapp_max_memtotal_mb: '12000000'
+
+# Minimum memory, per https://access.redhat.com/articles/rhel-limits
+leapp_min_memtotal_mb: '1024'
+
+# a list of packages to install with leapp
+leapp_packages:
+  - leapp
+  - leapp-repository
+
+# the list of packages to install if cockpit is not skipped
+leapp_packages_cockpit:
+  - cockpit-leapp
+
+# enable the default rhsm repositories
+leapp_rhsm_repositories:
+  - rhel-7-server-rpms
+  - rhel-7-server-extras-rpms

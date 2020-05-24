@@ -1,0 +1,42 @@
+---
+- name: TEST Perform an in-place upgrade of a EL System
+  hosts: localhost
+  remote_user: root
+
+  vars:
+    # Provide a list of repository IDs that exist in /etc/yum.repos.d
+    # Default []
+    leapp_custom_repositories: []
+
+    # Skip Red Hat Subscription Manager? Default no
+    leapp_skip_rhsm: no
+
+    # Skip the validation pre-flight checks? Default no
+    leapp_skip_validate: no
+
+    # Skip the prepare tasks? Default no
+    leapp_skip_prepare: no
+
+    # Skip cockpit installation? Default no
+    leapp_skip_prepare_cockpit_install: no
+
+    # Skip package installation?  Default no
+    leapp_skip_prepare_package_install: no
+
+    # Skip actual package updates?  Default no
+    leapp_skip_prepare_update: no
+
+    # Skip the leapp preupgrade? Default no
+    leapp_skip_preupgrade: yes
+
+    # Skip removing previous reports?  Defaults no
+    leapp_skip_preupgrade_cleanup: no
+
+    # Skip the actual leapp upgrade? Default yes
+    leapp_skip_upgrade: yes
+
+    # How long to wait (in seconds) for reboot after upgrade? Default 1200
+    leapp_upgrade_reboot_timeout: 1200
+
+  roles:
+    - mrjoshuap.leapp

@@ -1,0 +1,39 @@
+- name: Gather latest system facts
+  setup:
+
+- name: Gather latest package facts
+  package_facts:
+
+- name: Debug output all ansible facts
+  debug:
+    var: ansible_facts
+    verbosity: 2
+
+- name: Include setup tasks specific for distribution and architecture
+  include_tasks: '{{ item }}'
+  vars:
+    params:
+      files:
+        - 'setup-{{ ansible_distribution }}-{{ ansible_architecture }}.yml'
+        - 'setup-{{ ansible_distribution }}.yml'
+  loop: "{{ q('first_found', params, errors='ignore') }}"
+
+- block:
+
+    - name: Get yum versionlock list
+      command: yum versionlock list --quiet
+      args:
+        warn: no
+      changed_when: no
+      register: yum_versionlock_status
+
+    - name: Debug output of yum versionlock list
+      debug:
+        var: yum_versionlock_status
+        verbosity: 2
+
+    - name: Set yum versionlock status
+      set_fact:
+        leapp_yum_version_locked: '{{ yum_versionlock_status.stdout_lines | default() | length > 0 }}'
+
+  when: '"yum-plugin-versionlock" in ansible_facts.packages'

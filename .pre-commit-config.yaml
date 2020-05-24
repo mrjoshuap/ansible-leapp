@@ -1,0 +1,39 @@
+---
+
+# For use with pre-commit.
+# See usage instructions at http://pre-commit.com
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks.git
+    rev: master
+    hooks:
+      - id: check-added-large-files
+      - id: check-byte-order-marker
+      - id: check-case-conflict
+      - id: check-executables-have-shebangs
+      - id: check-json
+      - id: check-yaml
+      - id: detect-aws-credentials
+      - id: detect-private-key
+      - id: end-of-file-fixer
+      - id: mixed-line-ending
+      # - id: pretty-format-json
+      - id: trailing-whitespace
+
+  - repo: https://github.com/ansible/ansible-lint.git
+    rev: v4.2.0
+    hooks:
+      - id: ansible-lint
+        files: \.(yaml|yml)$
+
+  - repo: https://github.com/adrienverge/yamllint.git
+    rev: master
+    hooks:
+      - id: yamllint
+        files: \.(yaml|yml)$
+
+  - repo: https://github.com/markdownlint/markdownlint.git
+    rev: master
+    hooks:
+      - id: markdownlint
+        files: \.(md|MD)$

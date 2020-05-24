@@ -1,0 +1,56 @@
+- name: Extract additional required data files (RPM package changes and repository mappings)
+  unarchive:
+    remote_src: no
+    src: '{{ lookup("first_found", leapp_data_files) }}'
+    dest: /etc/leapp/files/
+
+- name: Cleanup previous preupgrade reports
+  file:
+    path: '{{ item }}'
+    state: absent
+  loop:
+    - /var/log/leapp/leapp-report.txt
+    - /var/log/leapp/leapp-report.json
+  when:
+    - 'not leapp_skip_preupgrade_cleanup | bool'
+
+- name: Generate leapp preupgrade report
+  command: >
+    leapp preupgrade
+    {% for repo in leapp_custom_repositories %} --enablerepo {{ repo }}{% endfor %}
+    {{ "--no-rhsm" if leapp_skip_rhsm | default() | bool }}
+  args:
+    creates: /var/log/leapp/leapp-report.txt
+  register: leapp_preupgrade
+
+- name: Debug leapp preupgrade output
+  debug:
+    var: leapp_preupgrade
+    verbosity: 2
+
+- name: Gather leapp preupgrade report (TXT)
+  fetch:
+    src: /var/log/leapp/leapp-report.txt
+    dest: leapp-reports/
+
+- name: Gather leapp preupgrade report (JSON)
+  fetch:
+    src: /var/log/leapp/leapp-report.json
+    dest: leapp-reports/
+
+- name: Load leapp preupgrade report
+  include_vars:
+    file: 'leapp-reports/{{ inventory_hostname }}/var/log/leapp/leapp-report.json'
+    name: leapp_preupgrade_report
+
+- name: Print leapp preupgrade report variable
+  debug:
+    var: leapp_preupgrade_report
+    verbosity: 2
+
+- name: Print leapp preupgrade statistics
+  debug:
+    msg: >
+      {{ leapp_preupgrade_report["entries"] | selectattr("severity", "match", "info") | list | length }} Info Messages,
+      {{ leapp_preupgrade_report["entries"] | selectattr("severity", "match", "low") | list | length }} Low Severity Issues,
+      {{ leapp_preupgrade_report["entries"] | selectattr("severity", "match", "high") | list | length }} High Severity Issues

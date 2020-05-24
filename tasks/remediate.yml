@@ -1,0 +1,20 @@
+- name: Set system locale to en_US.UTF-8
+  lineinfile:
+    path: /etc/locale.conf
+    regexp: '^LANG='
+    line: LANG=en_US.UTF-8
+
+- name: Permit root login via ssh
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^PermitRootLogin'
+    line: PermitRootLogin yes
+  register: permit_root_login
+
+- name: Restart sshd to permit root login # noqa 503
+  service:
+    name: sshd
+    state: restarted
+  when:
+    - 'not leapp_package_update.changed'
+    - 'permit_root_login.changed'
