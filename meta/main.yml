@@ -1,6 +1,7 @@
 ---
 
 galaxy_info:
+  role_name: leapp
   author: Joshua Preston
   description: An Ansible role that attempts an inplace upgrade of EL7 to EL8 using LEAPP
   company: Red Hat
