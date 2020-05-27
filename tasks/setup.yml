@@ -1,5 +1,16 @@
 - name: Gather latest system facts
   setup:
+  register: leapp_setup
+  ignore_errors: yes
+
+- name: Specify failsafe python interpreter if setup fails
+  set_fact:
+    ansible_python_interpreter: /usr/bin/python3
+  when: leapp_setup.failed
+
+- name: Gather latest system facts
+  setup:
+  when: leapp_setup.failed
 
 - name: Gather latest package facts
   package_facts:
@@ -37,3 +48,35 @@
         leapp_yum_version_locked: '{{ yum_versionlock_status.stdout_lines | default() | length > 0 }}'
 
   when: '"yum-plugin-versionlock" in ansible_facts.packages'
+
+- name: Saving state of ansible_facts
+  copy:
+    content: "{{ ansible_facts | to_nice_json }}"
+    dest: "/var/log/leapp-ansible_facts-{{ leapp_setup_state }}.json"
+  changed_when: no
+  when:
+    - "leapp_setup_state is defined"
+
+- name: Saving ansible_facts to local file -- for reference
+  fetch:
+    src: "/var/log/leapp-ansible_facts-{{ leapp_setup_state }}.json"
+    dest: leapp-reports/
+  changed_when: no
+  when:
+    - "leapp_setup_state is defined"
+
+- name: Saving state of hostvars
+  copy:
+    content: "{{ hostvars[inventory_hostname] | to_nice_json }}"
+    dest: "/var/log/leapp-hostvars-{{ leapp_setup_state }}.json"
+  changed_when: no
+  when:
+    - "leapp_setup_state is defined"
+
+- name: Saving hostvars to local file -- for reference
+  fetch:
+    src: "/var/log/leapp-hostvars-{{ leapp_setup_state }}.json"
+    dest: leapp-reports/
+  changed_when: no
+  when:
+    - "leapp_setup_state is defined"

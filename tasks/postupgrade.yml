@@ -1,0 +1,39 @@
+- name: Load leapp upgrade report
+  include_vars:
+    file: 'leapp-reports/{{ inventory_hostname }}/var/log/leapp/leapp-report-upgrade.json'
+    name: leapp_upgrade_report
+  when:
+    - 'leapp_upgrade_report is not defined'
+
+- name: Print leapp upgrade report variable
+  debug:
+    var: leapp_upgrade_report
+    verbosity: 2
+
+- name: Include postupgrade tasks specific for distribution and architecture
+  include_tasks: '{{ item }}'
+  vars:
+    params:
+      files:
+        - 'postupgrade-{{ ansible_distribution }}-{{ ansible_architecture }}.yml'
+        - 'postupgrade-{{ ansible_distribution }}.yml'
+  loop: "{{ q('first_found', params, errors='ignore') }}"
+
+- name: Correct python version selected
+  alternatives:
+    name: python
+    path: /usr/bin/python3
+  when:
+    - leapp_preupgrade_report.entries | selectattr("title", "match", "Difference in Python versions and support")
+
+- name: Reboot system # noqa 503
+  block:
+    - debug:
+      msg: "Rebooting system"
+      notify:
+        - reboot system
+  when:
+    - 'not leapp_skip_postupgrade_reboot | bool'
+
+- name: Force all notified handlers to run at this point, not waiting for normal sync points
+  meta: flush_handlers

@@ -3,3 +3,14 @@
 
 - name: reboot system
   reboot:
+    reboot_timeout: '{{ leapp_reboot_timeout | int }}'
+
+- name: restart cockpit
+  service:
+    name: cockpit.service
+    state: restarted
+
+- name: restart sshd
+  service:
+    name: sshd.service
+    state: restarted

@@ -1,0 +1,5 @@
+- name: Unset Subscription Manager Release
+  rhsm_release:
+    release: null
+  when:
+    - 'not leapp_skip_rhsm | bool'

@@ -6,9 +6,10 @@
 leapp_custom_repositories: []
 
 # specify a grub device, generally not required for most installations
+# Default /boot
 leapp_grub_device: '/boot'
 
-# Skip Red Hat Subscription Manager
+# Skip Red Hat Subscription Manager? Default no
 leapp_skip_rhsm: no
 
 # Skip the validation pre-flight checks? Default no
@@ -23,11 +24,17 @@ leapp_skip_prepare_cockpit_install: no
 # Skip package installation?  Default no
 leapp_skip_prepare_package_install: no
 
+# Skip mucking with RHSM repos?  Default yes
+leapp_skip_prepare_rhsm_repositories: yes
+
 # Skip actual package updates?  Default no
-leapp_skip_prepare_update: no
+leapp_skip_prepare_update: yes
+
+# Skip reboot after changes to package updates?  Default no
+leapp_skip_prepare_update_reboot: no
 
 # Skip the leapp preupgrade? Default no
-leapp_skip_preupgrade: yes
+leapp_skip_preupgrade: no
 
 # Skip removing previous reports?  Defaults no
 leapp_skip_preupgrade_cleanup: no
@@ -38,5 +45,20 @@ leapp_skip_remediate: yes
 # Skip the actual leapp upgrade? Default yes
 leapp_skip_upgrade: yes
 
-# How long to wait (in seconds) for reboot after upgrade? Default 1200
-leapp_upgrade_reboot_timeout: 1200
+# Skip removing previous reports?  Defaults no
+leapp_skip_upgrade_cleanup: no
+
+# Skip the reboot after the upgrade? Default no
+leapp_skip_upgrade_reboot: no
+
+# Skip the post leapp upgrade tasks? Default yes
+leapp_skip_postupgrade: yes
+
+# Skip the post upgrade reboot? Default no
+leapp_skip_postupgrade_reboot: no
+
+# Skip the verification after the upgrade and post tasks? Default no
+leapp_skip_verify: no
+
+# How long to wait (in seconds) for reboots? Default 1200
+leapp_reboot_timeout: 1200

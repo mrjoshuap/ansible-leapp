@@ -39,7 +39,9 @@ rules:
   empty-values:
     level: warning
   hyphens: enable
-  indentation: enable
+  indentation:
+    ignore: |
+      tasks/main.yml
   key-duplicates: enable
   key-ordering: disable
   line-length:

@@ -1,31 +1,75 @@
-- name: Perform leapp upgrade
-  command: >
-    leapp upgrade
-    {% for repo in leapp_custom_repositories %}--enablerepo {{ repo }}{% endfor %}
-    {{ "--no-rhsm" if leapp_skip_rhsm | default() | bool }}
-  args:
-    creates: /var/log/leapp/leapp-report.txt
-  register: leapp_preupgrade
+- name: Load leapp preupgrade report
+  include_vars:
+    file: 'leapp-reports/{{ inventory_hostname }}/var/log/leapp/leapp-report-preupgrade.json'
+    name: leapp_preupgrade_report
+  when:
+    - 'leapp_preupgrade_report is not defined'
 
-- name: Debug leapp preupgrade output
+- name: Print leapp preupgrade report variable
   debug:
-    var: leapp_preupgrade
+    var: leapp_preupgrade_report
     verbosity: 2
 
-- name: Reboot system to complete the upgrade
-  reboot:
-    reboot_timeout: '{{ leapp_upgrade_reboot_timeout | int }}'
-
-- name: Correct python version selected
-  alternatives:
-    name: python
-    path: /usr/bin/python3
+- name: Cleanup previous upgrade reports
+  file:
+    path: '{{ item }}'
+    state: absent
+  loop:
+    - /var/log/leapp/leapp-report.txt
+    - /var/log/leapp/leapp-report.json
   when:
-    - leapp_preupgrade_report.entries | selectattr("", "match", "Difference in Python versions and support")
+    - 'not leapp_skip_upgrade_cleanup | bool'
 
-- name: Unset Subscription Manager Release
-  rhsm_release:
-    release: null
+- name: Perform leapp upgrade # noqa 301
+  command: >
+    leapp upgrade
+    {% for repo in leapp_custom_repositories %}--enablerepo {{ repo | quote }} {% endfor %}
+    {{ "--no-rhsm" if leapp_skip_rhsm | default() | bool }}
+  register: leapp_upgrade
+
+- name: Debug leapp upgrade output
+  debug:
+    var: leapp_upgrade
+    verbosity: 2
+
+- name: Gather leapp upgrade report (TXT)
+  fetch:
+    src: /var/log/leapp/leapp-report.txt
+    dest: 'leapp-reports/{{ inventory_hostname }}/var/log/leapp/leapp-report-upgrade.txt'
+    flat: yes
+
+- name: Gather leapp upgrade report (JSON)
+  fetch:
+    src: /var/log/leapp/leapp-report.json
+    dest: 'leapp-reports/{{ inventory_hostname }}/var/log/leapp/leapp-report-upgrade.json'
+    flat: yes
+
+- name: Load leapp upgrade report
+  include_vars:
+    file: 'leapp-reports/{{ inventory_hostname }}/var/log/leapp/leapp-report-upgrade.json'
+    name: leapp_upgrade_report
+
+- name: Print leapp upgrade report variable
+  debug:
+    var: leapp_upgrade_report
+    verbosity: 2
+
+- name: Print leapp upgrade statistics
+  debug:
+    msg: >
+      {{ leapp_upgrade_report["entries"] | selectattr("severity", "match", "info") | list | length }} Info Messages,
+      {{ leapp_upgrade_report["entries"] | selectattr("severity", "match", "low") | list | length }} Low Severity Issues,
+      {{ leapp_upgrade_report["entries"] | selectattr("severity", "match", "high") | list | length }} High Severity Issues
+
+- name: Reboot system # noqa 503
+  block:
+    - debug:
+        msg: "Rebooting system"
+      notify:
+        - reboot system
   when:
-    - 'ansible_distribution == "RedHat"'
-    - 'not leapp_skip_rhsm | bool'
+    - 'not leapp_upgrade.failed'
+    - 'not leapp_skip_upgrade_reboot | bool'
+
+- name: Force all notified handlers to run at this point, not waiting for normal sync points
+  meta: flush_handlers

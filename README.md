@@ -61,10 +61,13 @@ leapp_skip_prepare_cockpit_install: no
 # Skip package installation?  Default no
 leapp_skip_prepare_package_install: no
 
-# Skip actual package updates?  Default no
-leapp_skip_prepare_update: no
+# Skip actual package updates?  Default yes
+leapp_skip_prepare_update: yes
 
-# Skip the leapp preupgrade? Default no
+# Skip reboot after changes to package updates?  Default no
+leapp_skip_prepare_update_reboot: no
+
+# Skip the leapp preupgrade? Default yes
 leapp_skip_preupgrade: yes
 
 # Skip removing previous reports?  Defaults no
@@ -77,7 +80,7 @@ leapp_skip_remediate: yes
 leapp_skip_upgrade: yes
 
 # How long to wait (in seconds) for reboot after upgrade? Default 1200
-leapp_upgrade_reboot_timeout: 1200
+leapp_reboot_timeout: 1200
 ```
 
 Dependencies
@@ -100,8 +103,8 @@ this role.
 Example Playbook
 ----------------
 
-The following is a simple playbook that will perform everything up to performing
-the actual upgrade:
+The following is a simple playbook that will perform the default behaviors up to
+performing the actual upgrade:
 
 ```
 ---
@@ -130,11 +133,11 @@ the actual upgrade:
     # Skip package installation?  Default no
     leapp_skip_prepare_package_install: no
 
-    # Skip actual package updates?  Default no
-    leapp_skip_prepare_update: no
+    # Skip actual package updates?  Default yes
+    leapp_skip_prepare_update: yes
 
     # Skip the leapp preupgrade? Default no
-    leapp_skip_preupgrade: yes
+    leapp_skip_preupgrade: no
 
     # Skip removing previous reports?  Defaults no
     leapp_skip_preupgrade_cleanup: no
@@ -143,7 +146,7 @@ the actual upgrade:
     leapp_skip_upgrade: yes
 
     # How long to wait (in seconds) for reboot after upgrade? Default 1200
-    leapp_upgrade_reboot_timeout: 1200
+    leapp_reboot_timeout: 1200
 
   roles:
     - mrjoshuap.leapp

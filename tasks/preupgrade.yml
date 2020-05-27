@@ -17,7 +17,7 @@
 - name: Generate leapp preupgrade report
   command: >
     leapp preupgrade
-    {% for repo in leapp_custom_repositories %} --enablerepo {{ repo }}{% endfor %}
+    {% for repo in leapp_custom_repositories %}--enablerepo {{ repo }} {% endfor %}
     {{ "--no-rhsm" if leapp_skip_rhsm | default() | bool }}
   args:
     creates: /var/log/leapp/leapp-report.txt
@@ -31,16 +31,18 @@
 - name: Gather leapp preupgrade report (TXT)
   fetch:
     src: /var/log/leapp/leapp-report.txt
-    dest: leapp-reports/
+    dest: 'leapp-reports/{{ inventory_hostname }}/var/log/leapp/leapp-report-preupgrade.txt'
+    flat: yes
 
 - name: Gather leapp preupgrade report (JSON)
   fetch:
     src: /var/log/leapp/leapp-report.json
-    dest: leapp-reports/
+    dest: 'leapp-reports/{{ inventory_hostname }}/var/log/leapp/leapp-report-preupgrade.json'
+    flat: yes
 
 - name: Load leapp preupgrade report
   include_vars:
-    file: 'leapp-reports/{{ inventory_hostname }}/var/log/leapp/leapp-report.json'
+    file: 'leapp-reports/{{ inventory_hostname }}/var/log/leapp/leapp-report-preupgrade.json'
     name: leapp_preupgrade_report
 
 - name: Print leapp preupgrade report variable
@@ -53,4 +55,5 @@
     msg: >
       {{ leapp_preupgrade_report["entries"] | selectattr("severity", "match", "info") | list | length }} Info Messages,
       {{ leapp_preupgrade_report["entries"] | selectattr("severity", "match", "low") | list | length }} Low Severity Issues,
-      {{ leapp_preupgrade_report["entries"] | selectattr("severity", "match", "high") | list | length }} High Severity Issues
+      {{ leapp_preupgrade_report["entries"] | selectattr("severity", "match", "high") | list | length }} High Severity Issues,
+      {{ leapp_preupgrade_report["entries"] | json_query("[*].flags[?contains(@, 'inhibitor')]") | list | length }} Inhibitors

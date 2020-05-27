@@ -12,7 +12,7 @@
     that:
       - 'ansible_distribution_major_version | int == 7'
       - 'ansible_interfaces | select("match", "eth") | list | length <= 1'
-      - 'ansible_kernel is match(leapp_kernel_version)'
+      - 'ansible_kernel is match(leapp_kernel_version_from)'
       - 'ansible_memtotal_mb | int < leapp_max_memtotal_mb | int'
       - 'ansible_memtotal_mb | int > leapp_min_memtotal_mb | int'
       - 'ansible_processor_count | int * ansible_processor_cores | int < leapp_maximum_logical_cpus | int'

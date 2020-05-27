@@ -4,30 +4,85 @@
       - name: Include setup tasks
         include_tasks: setup.yml
 
-      - name: Validating prerequisites and requirements
-        include_tasks: validate.yml
-        when: not leapp_skip_validate | bool
+      - block:
 
-      - name: Preparing a system for the upgrade
-        include_tasks: prepare.yml
-        when: not leapp_skip_prepare | bool
+          - name: Include setup tasks - pre
+            include_tasks: setup.yml
+            vars:
+              leapp_setup_state: pre
 
-      - name: Generate leapp preupgrade report
-        include_tasks: preupgrade.yml
-        when: not leapp_skip_preupgrade | bool
+          - name: Validating prerequisites and requirements
+            include_tasks: validate.yml
+            when:
+              - not leapp_skip_validate | bool
 
-      - name: Perform common remediation of issues
-        include_tasks: remediate.yml
-        when: not leapp_skip_remediate | bool
+          - name: Preparing system for the upgrade
+            include_tasks: prepare.yml
+            when:
+              - not leapp_skip_prepare | bool
 
-      - name: Performing the upgrade
-        include_tasks: upgrade.yml
-        when: not leapp_skip_upgrade | bool
+          - name: Include setup tasks - prepared
+            include_tasks: setup.yml
+            vars:
+              leapp_setup_state: prepared
+            when:
+              - not leapp_skip_prepare | bool
 
-      - name: Include setup tasks
-        include_tasks: setup.yml
-        when: not leapp_skip_upgrade | bool
+          - name: Generate leapp preupgrade report
+            include_tasks: preupgrade.yml
+            when:
+              - not leapp_skip_preupgrade | bool
 
-      - name: Verifying the post-upgrade state
-        include_tasks: verify.yml
-        when: not leapp_skip_upgrade | bool
+          - name: Perform common remediation of issues
+            include_tasks: remediate.yml
+            when:
+              - not leapp_skip_remediate | bool
+
+          - name: Include setup tasks - remediated
+            include_tasks: setup.yml
+            vars:
+              leapp_setup_state: remediated
+            when:
+              - not leapp_skip_remediate | bool
+
+          - name: Performing the upgrade
+            include_tasks: upgrade.yml
+            when:
+              - not leapp_skip_upgrade | bool
+
+          - name: Include setup tasks - upgraded
+            include_tasks: setup.yml
+            vars:
+              leapp_setup_state: upgraded
+            when:
+              - not leapp_skip_upgrade | bool
+
+        when:
+          - ansible_distribution_major_version == '7'
+
+      - block:
+
+          - name: Include setup tasks - post
+            include_tasks: setup.yml
+            vars:
+              leapp_setup_state:
+
+          - name: Include postupgrade tasks
+            include_tasks: postupgrade.yml
+            when:
+              - not leapp_skip_postupgrade | bool
+
+          - name: Include setup tasks - postupgraded
+            include_tasks: setup.yml
+            vars:
+              leapp_setup_state: postupgraded
+            when:
+              - not leapp_skip_postupgrade | bool
+
+          - name: Verifying the post-upgrade state
+            include_tasks: verify.yml
+            when:
+              - 'not leapp_skip_verify | bool'
+
+        when:
+          - ansible_distribution_major_version == '8'

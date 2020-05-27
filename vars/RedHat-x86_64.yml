@@ -1,6 +1,9 @@
 ---
-# Required kernel version
-leapp_kernel_version: '3.10'
+# Required kernel version to upgrade FROM
+leapp_kernel_version_from: '3.10'
+
+# Required kernel version to upgrade TO
+leapp_kernel_version_to: '4.18'
 
 # Maximum logical CPUs, per https://access.redhat.com/articles/rhel-limits
 leapp_maximum_logical_cpus: '768'

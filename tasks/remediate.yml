@@ -1,3 +1,15 @@
+- name: Load leapp preupgrade report
+  include_vars:
+    file: 'leapp-reports/{{ inventory_hostname }}/var/log/leapp/leapp-report-preupgrade.json'
+    name: leapp_preupgrade_report
+  when:
+    - 'leapp_preupgrade_report is not defined'
+
+- name: Print leapp preupgrade report variable
+  debug:
+    var: leapp_preupgrade_report
+    verbosity: 2
+
 - name: Set system locale to en_US.UTF-8
   lineinfile:
     path: /etc/locale.conf
@@ -5,16 +17,14 @@
     line: LANG=en_US.UTF-8
 
 - name: Permit root login via ssh
-  lineinfile:
-    path: /etc/ssh/sshd_config
-    regexp: '^PermitRootLogin'
-    line: PermitRootLogin yes
-  register: permit_root_login
-
-- name: Restart sshd to permit root login # noqa 503
-  service:
-    name: sshd
-    state: restarted
+  block:
+    - name: Configure sshd
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^PermitRootLogin'
+        line: PermitRootLogin yes
+      register: permit_root_login
+      notify:
+        - restart sshd
   when:
-    - 'not leapp_package_update.changed'
-    - 'permit_root_login.changed'
+    - 'leapp_preupgrade_report["entries"] | selectattr("title", "match", "Possible problems with remote login using root account") | list | length > 0'

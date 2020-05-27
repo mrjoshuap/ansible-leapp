@@ -14,7 +14,7 @@
 
     - name: Set subscription status
       set_fact:
-        leapp_subscription_manager_entitled: '{{ subscription_manager_status.rc | default() | bool }}'
+        leapp_subscription_manager_entitled: '{{ not subscription_manager_status.failed | bool }}'
 
     - name: Get release status
       command: subscription-manager release --show

@@ -7,22 +7,11 @@
         - 'prepare-{{ ansible_distribution }}.yml'
   loop: "{{ q('first_found', params, errors='ignore') }}"
 
-- name: Include prepare tasks specific for Red Hat
-  include_tasks: prepare-RedHat.yml
-
 - name: Clear yum versionlocks
   command: yum versionlock clear
   args:
     warn: no
   when: 'leapp_yum_version_locked | default() | bool'
-
-- name: Update all packages to latest # noqa 403
-  package:
-    name: '*'
-    state: latest
-  register: leapp_package_update
-  when:
-    - 'not leapp_skip_prepare_update | bool'
 
 - name: Install required LEAPP packages
   package:
@@ -34,21 +23,29 @@
   package:
     name: '{{ leapp_packages_cockpit }}'
     state: present
+  notify:
+    - restart cockpit
   when:
-    - '"cockpit" in ansible_facts.packages'
     - 'not leapp_skip_prepare_cockpit_install | bool'
   register: leapp_package_cockpit
 
-- name: Restart cockpit for LEAPP module to take effect
-  service:
-    name: cockpit
-    state: restarted
+- name: Update all packages to latest # noqa 403
+  package:
+    name: '*'
+    state: latest
+  register: leapp_package_update
   when:
-    - '"cockpit" in ansible_facts.packages'
-    - 'not leapp_package_update.changed'
-    - 'not leapp_skip_prepare_cockpit_install | bool'
-    - 'leapp_package_cockpit.changed'
+    - 'not leapp_skip_prepare_update | bool'
 
 - name: Reboot system # noqa 503
-  reboot:
-  when: 'leapp_package_update.changed'
+  block:
+    - debug:
+        msg: "Rebooting system"
+      notify:
+        - reboot system
+  when:
+    - 'leapp_package_update.changed'
+    - 'not leapp_skip_prepare_update_reboot | bool'
+
+- name: Force all notified handlers to run at this point, not waiting for normal sync points
+  meta: flush_handlers

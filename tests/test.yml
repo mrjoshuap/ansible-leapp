@@ -36,7 +36,7 @@
     leapp_skip_upgrade: yes
 
     # How long to wait (in seconds) for reboot after upgrade? Default 1200
-    leapp_upgrade_reboot_timeout: 1200
+    leapp_reboot_timeout: 1200
 
   roles:
     - mrjoshuap.leapp

@@ -1,3 +1,13 @@
+- name: Load distribution and architecture variables
+  include_vars: '{{ item }}'
+  vars:
+    params:
+      files:
+        - 'vars/{{ ansible_distribution }}-{{ ansible_architecture }}.yml'
+  loop: "{{ q('first_found', params, errors='ignore') }}"
+
 - name: Verify post-upgrade system status
-  debug:
-    msg: Not yet implemented
+  assert:
+    that:
+      - 'ansible_distribution_major_version | int == 8'
+      - 'ansible_kernel is match(leapp_kernel_version_to)'
