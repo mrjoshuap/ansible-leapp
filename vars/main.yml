@@ -23,3 +23,5 @@ leapp_data_files:
   - files/leapp-data3.tar.gz
   - files/leapp-data2.tar.gz
   - files/leapp-data1.tar.gz
+
+leapp_json_query_inhibitor: '[*].flags[?contains(@, "inhibitor")]'

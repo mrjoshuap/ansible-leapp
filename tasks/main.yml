@@ -45,6 +45,18 @@
             when:
               - not leapp_skip_remediate | bool
 
+          - name: Rerun leapp preupgrade report after remediations
+            include_tasks: preupgrade.yml
+            when:
+              - not leapp_skip_preupgrade | bool
+              - not leapp_skip_remediate | bool
+              - leapp_preupgrade_report_inhibitors | int > 0
+
+          - assert:
+              that:
+                - not leapp_skip_upgrade | bool and leapp_preupgrade_report_inhibitors | int == 0
+              fail_msg: 'There are still inhibitors blocking the upgrade, manually review report and remediate'
+
           - name: Performing the upgrade
             include_tasks: upgrade.yml
             when:

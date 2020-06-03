@@ -21,6 +21,7 @@
     {{ "--no-rhsm" if leapp_skip_rhsm | default() | bool }}
   args:
     creates: /var/log/leapp/leapp-report.txt
+  ignore_errors: yes
   register: leapp_preupgrade
 
 - name: Debug leapp preupgrade output
@@ -49,6 +50,14 @@
   debug:
     var: leapp_preupgrade_report
     verbosity: 2
+
+- name: Set appropriate facts based on the report
+  set_fact:
+    leapp_preupgrade_report_info: '{{ leapp_preupgrade_report["entries"] | selectattr("severity", "match", "info") | list }}'
+    leapp_preupgrade_report_low: '{{ leapp_preupgrade_report["entries"] | selectattr("severity", "match", "low") | list }}'
+    leapp_preupgrade_report_high: '{{ leapp_preupgrade_report["entries"] | selectattr("severity", "match", "high") | list }}'
+    leapp_preupgrade_report_inhibitors: >
+      {{ leapp_preupgrade_report["entries"] | json_query("[*].flags[?contains(@, 'inhibitor')]") | list }}
 
 - name: Print leapp preupgrade statistics
   debug:
