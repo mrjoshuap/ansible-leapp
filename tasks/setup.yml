@@ -1,4 +1,4 @@
-- name: Gather latest system facts
+- name: Gather python interpreter fact
   setup:
     filter: ansible_python_interpreter
   register: leapp_setup_test
@@ -7,11 +7,11 @@
 - name: Specify failsafe python interpreter if setup fails
   set_fact:
     ansible_python_interpreter: /usr/bin/python3
+    cacheable: yes
   when: leapp_setup_test.failed
 
 - name: Gather latest system facts
   setup:
-  when: leapp_setup_test.failed
 
 - name: Gather latest package facts
   package_facts:
